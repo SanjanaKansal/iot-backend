@@ -11,18 +11,12 @@ from datalogger.models import ElectricalData, WaterData
 from datalogger.serializers import ElectricalDataSerializer, WaterDataSerializer
 
 
-class ElectricalLoggerViewSet(ModelViewSet):
+class LoggerViewSet(ModelViewSet):
     serializer_class = ElectricalDataSerializer
     queryset = ElectricalData.objects.all()
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data, many=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data)
-
-    @action(methods=["POST"], detail=False)
-    def populateDummyData(self, request, *args, **kwargs):
+        client_id = request.data["client_id"]
         total_days = 200
         samples_per_day = 16
         data = []
@@ -30,7 +24,7 @@ class ElectricalLoggerViewSet(ModelViewSet):
             voltage_RMS = 200.0 + 40 * random.random()
             current_RMS = 25 * random.random()
             data.append({
-                "client_id": ''.join(random.choices(string.ascii_letters, k=26)),
+                "client_id": client_id,
                 "voltage_RMS": voltage_RMS,
                 "current_RMS": current_RMS,
                 "phase": random.random(),
@@ -40,6 +34,17 @@ class ElectricalLoggerViewSet(ModelViewSet):
                 "generation_timestamp": int(time.time() - i * 900)
             })
         serializer = self.get_serializer(data=data, many=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data)
+
+
+class ElectricalLoggerViewSet(ModelViewSet):
+    serializer_class = ElectricalDataSerializer
+    queryset = ElectricalData.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data)

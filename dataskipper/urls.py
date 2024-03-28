@@ -16,8 +16,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from rest_framework_nested import routers
+
+from dashboard.api import PowerDashboardViewSet
+from datalogger.api import LoggerViewSet, WaterLoggerViewSet, ElectricalLoggerViewSet
+
+
+default_router = routers.SimpleRouter()
+default_router.register("populateDummyData", LoggerViewSet, basename="populateDummyData")
+default_router.register("logElectricalData", ElectricalLoggerViewSet, basename="logElectricalData")
+default_router.register("logWaterData", WaterLoggerViewSet, basename="logWaterData")
+default_router.register("powerHistogram", PowerDashboardViewSet, basename="powerHistogram")
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("iot-backend/api/v1/", include("datalogger.urls")),
-
+    path("iot-backend/api/v1/", include(default_router.urls)),
 ]
