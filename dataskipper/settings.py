@@ -82,7 +82,7 @@ DATABASES = {
     "default": {
         "ENGINE": "timescale.db.backends.postgresql",
         "NAME": "dataskipper_db",
-        "USER": "root",
+        "USER": "postgres",
         "PASSWORD": "password",
         "HOST": "localhost",
         "PORT": "5432",
