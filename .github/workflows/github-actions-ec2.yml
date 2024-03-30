@@ -24,7 +24,7 @@ jobs:
             pip install -r requirements.txt
       - name: Debug PostgreSQL connection
         run: |
-	          psql -U postgres -W -h localhost -d dataskipper_db
+	    psql -U postgres -W -h localhost -d dataskipper_db
       - name: Run migrations
         run: |
             python manage.py migrate
