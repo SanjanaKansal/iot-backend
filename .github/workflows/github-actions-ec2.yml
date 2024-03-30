@@ -1,6 +1,5 @@
-name: Push-to-EC2
+name: Deploy to AWS EC2 with Django
 
-# Trigger deployment only on push to main branch
 on:
   push:
     branches:
@@ -8,24 +7,34 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to EC2 on master branch push
+    name: Deploy to AWS EC2
     runs-on: ubuntu-latest
 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
+      EC2_INSTANCE_IP: 13.201.230.17
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SSH_USERNAME: ubuntu
+      DATABASE_URL: postgresql://postgres:password@localhost:5432/dataskipper_db
+
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Setup Python ${{ matrix.python-version }}
+
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-           python-version: 3.8
-      - name: Install requirements
+          python-version: 3.8
+
+      - name: Install dependencies
         run: |
-            pip install -r requirements.txt
-      - name: Debug Postgres
-        run: |
-          psql -U postgres -W -h localhost -d dataskipper_db
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Run migrations
-        run: |
-            python manage.py migrate
-            python manage.py runserver
+        run: python manage.py migrate
+
+      - name: Start Django server
+        run: python manage.py runserver
