@@ -2,7 +2,7 @@ from django.db import models
 
 
 class ElectricalData(models.Model):
-    client_id = models.CharField(max_length=56)
+    client_id = models.TextField()
     generation_timestamp = models.IntegerField()
     voltage_RMS = models.FloatField()
     current_RMS = models.FloatField()
