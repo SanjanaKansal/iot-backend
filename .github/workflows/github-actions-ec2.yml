@@ -38,6 +38,10 @@ jobs:
             git clone git@github.com:SanjanaKansal/iot-backend.git $DEPLOY_DIR
 
             cd $DEPLOY_DIR
+          
+            sudo apt update -y
+            sudo apt install python:3.8
+            sudo apt install python3-pip
 
             # Setup Python environment and install dependencies
             python3 -m venv venv
