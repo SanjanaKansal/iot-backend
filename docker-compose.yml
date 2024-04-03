@@ -4,15 +4,17 @@ services:
 
   dataskipper_db:
     image: timescale/timescaledb-ha:pg16
+    env_file:
+      - .env
     platform: linux/amd64
     environment:
-      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_HOST: ${DB_HOST}
       POSTGRES_DB: dataskipper_db
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     container_name: dataskipper_db
     ports:
-      - "5439:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - db_vol:/var/lib/postgresql/data
 
