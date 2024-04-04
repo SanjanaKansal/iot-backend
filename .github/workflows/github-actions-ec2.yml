@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -17,9 +18,16 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Deploy to EC2
+      - name: Deploy to EC2            
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
+            export DB_USER=${{ secrets.DB_USER }}
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            export DB_HOST=${{ secrets.DB_HOST }}
+            export DB_PORT=${{ secrets.DB_PORT }}
+            export DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+            export DJANGO_DEBUG=${{ secrets.DJANGO_DEBUG }}
+            
             DEPLOY_DIR=/home/ubuntu/iot-backend
 
             # Ensure .ssh directory exists
@@ -50,5 +58,5 @@ jobs:
 
             # Apply Django migrations and collect static files
             python3 manage.py migrate
-
+          
           EOF

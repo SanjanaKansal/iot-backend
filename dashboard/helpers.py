@@ -83,7 +83,7 @@ def get_db_data(data, client_ids, histogram_type):
     elif histogram_type == constants.HistogramDataType.ENERGY:
         field = "energy"
         model = ElectricalData
-    elif histogram_type == constants.HistogramDataType.ENERGY:
+    elif histogram_type == constants.HistogramDataType.WATER_FLOW:
         field = "flow_rate"
         model = WaterData
     elif histogram_type == constants.HistogramDataType.WATER_VOLUME:
