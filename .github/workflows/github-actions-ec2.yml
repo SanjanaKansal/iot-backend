@@ -27,6 +27,10 @@ jobs:
             export DB_PORT=${{ secrets.DB_PORT }}
             export DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
             export DJANGO_DEBUG=${{ secrets.DJANGO_DEBUG }}
+            export RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}
+            export RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}
+
+            print(DJANGO_SECRET_KEY)
             
             DEPLOY_DIR=/home/ubuntu/iot-backend
 
