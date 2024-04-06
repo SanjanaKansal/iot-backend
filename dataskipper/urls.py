@@ -14,18 +14,22 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-
+from django.urls import include, path
 from rest_framework_nested import routers
 
 from dashboard.api import (
-    PowerDashboardViewSet,
     EnergyDashboardViewSet,
+    PowerDashboardViewSet,
     WaterFlowDashboardViewSet,
     WaterVolumeDashboardViewSet,
 )
-from datalogger.api import LoggerViewSet, WaterLoggerViewSet, ElectricalLoggerViewSet
-
+from datalogger.api import (
+    ClientDashboardViewSet,
+    ElectricalLoggerViewSet,
+    LoggerViewSet,
+    WaterLoggerViewSet,
+)
+from user.api import UserViewSet
 
 default_router = routers.SimpleRouter()
 default_router.register(
@@ -47,7 +51,8 @@ default_router.register(
 default_router.register(
     "waterVolumeHistogram", WaterVolumeDashboardViewSet, basename="waterVolumeHistogram"
 )
-
+default_router.register("allClients", ClientDashboardViewSet, basename="allClients")
+default_router.register("registerUser", UserViewSet, basename="registerUser")
 
 urlpatterns = [
     path("admin/", admin.site.urls),

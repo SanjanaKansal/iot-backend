@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .helpers import sanitise_electrical_data, sanitise_water_data
-from .models import ElectricalData, WaterData
+from .models import ClientData, ElectricalData, WaterData
 
 
 class ElectricalDataSerializer(serializers.ModelSerializer):
@@ -22,3 +22,9 @@ class WaterDataSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         sanitise_water_data(validated_data=validated_data)
         return super().create(validated_data)
+
+
+class ClientDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientData
+        fields = "__all__"

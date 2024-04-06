@@ -21,8 +21,16 @@ jobs:
       - name: Deploy to EC2            
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.HOST }} << 'EOF'
-            
             DEPLOY_DIR=/home/ubuntu/iot-backend
+          
+            export DB_USER=${{ secrets.DB_USER }}
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            export DB_HOST=${{ secrets.DB_HOST }}
+            export DB_PORT=${{ secrets.DB_PORT }}
+            export DJANGO_DEBUG=${{ secrets.DJANGO_DEBUG }}
+            export SECRET_KEY=${{ secrets.SECRET_KEY }}
+            export RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}
+            export RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}
 
             # Ensure .ssh directory exists
             mkdir -p ~/.ssh
@@ -38,13 +46,20 @@ jobs:
             # Remove the existing directory (if it exists) and clone the repository afresh
             rm -rf $DEPLOY_DIR
             git clone git@github.com:SanjanaKansal/iot-backend.git $DEPLOY_DIR
+          
+            echo "DB_USER=${{ secrets.DB_USER }}" > $DEPLOY_DIR/.env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $DEPLOY_DIR/.env
+            echo "DB_HOST=${{ secrets.DB_HOST }}" >> $DEPLOY_DIR/.env
+            echo "DB_PORT=${{ secrets.DB_PORT }}" >> $DEPLOY_DIR/.env
+            echo "DJANGO_DEBUG=${{ secrets.DJANGO_DEBUG }}" >> $DEPLOY_DIR/.env
+            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $DEPLOY_DIR/.env
+            echo "RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}" >> $DEPLOY_DIR/.env
+            echo "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}" >> $DEPLOY_DIR/.env
 
             cd $DEPLOY_DIR
           
             sudo apt update -y
-            sudo apt install python:3.8
-            sudo apt install python3-pip
-
+            sudo apt install python3.10 python3-pip python3.10-venv
             # Setup Python environment and install dependencies
             python3 -m venv venv
             source venv/bin/activate
@@ -52,5 +67,7 @@ jobs:
 
             # Apply Django migrations and collect static files
             python3 manage.py migrate
+            python manage.py collectstatic
+
           
           EOF

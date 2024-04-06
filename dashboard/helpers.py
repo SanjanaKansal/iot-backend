@@ -1,6 +1,5 @@
 import time
 
-
 from dashboard import constants
 from datalogger.models import ElectricalData, WaterData
 
@@ -16,9 +15,9 @@ def get_data_points(data, type):
 
     width = 30
     if data["to_epoch"] - data["from_epoch"] > 604800:  # 7 days
-        width = 300    # 5 min
+        width = 300  # 5 min
     elif data["to_epoch"] - data["from_epoch"] > 131400 * 60:  # 3 months
-        width = 3600   # 1 hr
+        width = 3600  # 1 hr
 
     # Optimize interval creation
     intervals = list(range(data["from_epoch"], data["to_epoch"] + 1, width))
