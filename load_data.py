@@ -15,9 +15,9 @@ db_params = {
 table_name = "datalogger_electricaldata"
 columns = (
     "client_id",
-    "generation_timestamp",
-    '"voltage_RMS"',
-    '"current_RMS"',
+    "timestamp",
+    '"voltage_rms"',
+    '"current_rms"',
     "phase",
     "voltage_frequency",
     "power",

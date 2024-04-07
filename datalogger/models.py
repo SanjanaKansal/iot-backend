@@ -3,9 +3,9 @@ from django.db import models
 
 class ElectricalData(models.Model):
     client_id = models.TextField()
-    generation_timestamp = models.IntegerField()
-    voltage_RMS = models.FloatField()
-    current_RMS = models.FloatField()
+    timestamp = models.IntegerField()
+    voltage_rms = models.FloatField()
+    current_rms = models.FloatField()
     voltage_peak = models.FloatField(null=True)
     current_peak = models.FloatField(null=True)
     phase = models.FloatField()
@@ -19,7 +19,7 @@ class ElectricalData(models.Model):
 
 class WaterData(models.Model):
     client_id = models.CharField(max_length=56)
-    generation_timestamp = models.IntegerField()
+    timestamp = models.IntegerField()
     flow_rate = models.FloatField()
     time_window_in_seconds = models.IntegerField()
     volume = models.FloatField()

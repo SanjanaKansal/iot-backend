@@ -22,18 +22,18 @@ class LoggerViewSet(ModelViewSet):
         samples_per_day = 16
         data = []
         for i in range(total_days * samples_per_day):
-            voltage_RMS = 200.0 + 40 * random.random()
-            current_RMS = 25 * random.random()
+            voltage_rms = 200.0 + 40 * random.random()
+            current_rms = 25 * random.random()
             data.append(
                 {
                     "client_id": client_id,
-                    "voltage_RMS": voltage_RMS,
-                    "current_RMS": current_RMS,
+                    "voltage_rms": voltage_rms,
+                    "current_rms": current_rms,
                     "phase": random.random(),
                     "voltage_frequency": random.random(),
-                    "power": float(voltage_RMS * current_RMS) / 1000,
-                    "energy": float(voltage_RMS * current_RMS) / 4000,
-                    "generation_timestamp": int(time.time() - i * 900),
+                    "power": float(voltage_rms * current_rms) / 1000,
+                    "energy": float(voltage_rms * current_rms) / 4000,
+                    "timestamp": int(time.time() - i * 900),
                 }
             )
         serializer = self.get_serializer(data=data, many=True)

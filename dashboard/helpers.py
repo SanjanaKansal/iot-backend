@@ -90,9 +90,9 @@ def get_db_data(data, client_ids, histogram_type):
         model = WaterData
     return (
         model.objects.filter(
-            generation_timestamp__range=[data["from_epoch"], data["to_epoch"]],
+            timestamp__range=[data["from_epoch"], data["to_epoch"]],
             client_id__in=client_ids,
         )
-        .values_list("generation_timestamp", field)
-        .order_by("generation_timestamp")
+        .values_list("timestamp", field)
+        .order_by("timestamp")
     )
