@@ -31,6 +31,9 @@ jobs:
             export SECRET_KEY=${{ secrets.SECRET_KEY }}
             export RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}
             export RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}
+            export EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
+            export EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
+            export SITE_URL=${{ secrets.SITE_URL }}
 
             # Ensure .ssh directory exists
             mkdir -p ~/.ssh
@@ -55,6 +58,9 @@ jobs:
             echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $DEPLOY_DIR/.env
             echo "RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}" >> $DEPLOY_DIR/.env
             echo "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}" >> $DEPLOY_DIR/.env
+            echo "EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}" >> $DEPLOY_DIR/.env
+            echo "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" >> $DEPLOY_DIR/.env
+            echo "SITE_URL=${{ secrets.SITE_URL }}" >> $DEPLOY_DIR/.env
 
             cd $DEPLOY_DIR
           

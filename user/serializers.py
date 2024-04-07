@@ -1,6 +1,8 @@
-from rest_framework import serializers
+import uuid
+
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
 
 from user.models import UserProfile
 
@@ -33,6 +35,13 @@ class UserRegistrationSerializer(serializers.Serializer):
             password=validated_data["password1"],
         )
         user_profile = UserProfile.objects.create(
-            user=user, organization_id=validated_data["organization_id"]
+            user=user,
+            organization_id=validated_data["organization_id"],
+            token=str(uuid.uuid4()),
         )
         return user, user_profile
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()

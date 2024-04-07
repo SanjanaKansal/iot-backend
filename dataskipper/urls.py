@@ -29,7 +29,12 @@ from datalogger.api import (
     LoggerViewSet,
     WaterLoggerViewSet,
 )
-from user.api import UserViewSet
+from user.api import (
+    UserLoginViewSet,
+    UserLogoutViewSet,
+    UserRegisterViewSet,
+    VerifyEmailViewSet,
+)
 
 default_router = routers.SimpleRouter()
 default_router.register(
@@ -52,7 +57,10 @@ default_router.register(
     "waterVolumeHistogram", WaterVolumeDashboardViewSet, basename="waterVolumeHistogram"
 )
 default_router.register("allClients", ClientDashboardViewSet, basename="allClients")
-default_router.register("registerUser", UserViewSet, basename="registerUser")
+default_router.register("registerUser", UserRegisterViewSet, basename="registerUser")
+default_router.register("loginUser", UserLoginViewSet, basename="loginUser")
+default_router.register("logoutUser", UserLogoutViewSet, basename="logoutUser")
+default_router.register("accountVerify", VerifyEmailViewSet, basename="accountVerify"),
 
 urlpatterns = [
     path("admin/", admin.site.urls),

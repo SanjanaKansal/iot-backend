@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Your Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            margin: auto;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #444;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Welcome to DataSkipper!</h1>
+    <p>Hi {{ user.username }},</p>
+    <p>Thank you for registering with DataSkipper. Please confirm your email address to activate your account:</p>
+    <p><a href="{{ activation_link }}" target="_blank">Activate Account</a></p>
+    <p>If you didn't request this, please ignore this email.</p>
+    <div class="footer">
+        <p>&copy; DataSkipper. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
