@@ -18,6 +18,7 @@ from django.urls import include, path
 from rest_framework_nested import routers
 
 from dashboard.api import (
+    DashboardViewSet,
     EnergyDashboardViewSet,
     PowerDashboardViewSet,
     WaterFlowDashboardViewSet,
@@ -60,7 +61,9 @@ default_router.register("allClients", ClientDashboardViewSet, basename="allClien
 default_router.register("registerUser", UserRegisterViewSet, basename="registerUser")
 default_router.register("loginUser", UserLoginViewSet, basename="loginUser")
 default_router.register("logoutUser", UserLogoutViewSet, basename="logoutUser")
-default_router.register("accountVerify", VerifyEmailViewSet, basename="accountVerify"),
+default_router.register("accountVerify", VerifyEmailViewSet, basename="accountVerify")
+
+default_router.register("dashboard", DashboardViewSet, basename="dashboard")
 
 urlpatterns = [
     path("admin/", admin.site.urls),

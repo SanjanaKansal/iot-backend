@@ -26,7 +26,7 @@ class WaterData(models.Model):
 
 
 class ClientData(models.Model):
-    organisation_id = models.CharField(max_length=256)
+    organization_id = models.CharField(max_length=256)
     block_id = models.CharField(max_length=256)
     panel_id = models.CharField(max_length=256)
     level_id = models.CharField(max_length=256)
