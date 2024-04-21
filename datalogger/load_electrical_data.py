@@ -70,7 +70,7 @@ def insert_data_into_db(connection_params, table, columns, data):
 
 
 def load_data():
-    json_file_path = "/Users/sanjana/Downloads/iot_1.json"
+    json_file_path = "/Users/sanjana/Downloads/iot.json"
     json_data = load_json_data(json_file_path)
     prepared_data = prepare_data_for_insert(json_data)
     insert_data_into_db(db_params, table_name, columns, prepared_data)

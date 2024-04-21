@@ -1,10 +1,6 @@
 from django.db import models
 
-
-class OriginTypes(models.TextChoices):
-    POWER_CONSUMPTION = "power_consumption"
-    POWER_DISTRIBUTION = "power_distribution"
-    WATER = "water"
+from datalogger.models import ClientTypes
 
 
 class MetricTypes(models.TextChoices):
@@ -21,7 +17,7 @@ class MetricTypes(models.TextChoices):
 
 class Config(models.Model):
     organization_id = models.CharField(max_length=1024)
-    origin = models.CharField(choices=OriginTypes.choices, default=OriginTypes.POWER_CONSUMPTION)
+    origin = models.CharField(choices=ClientTypes.choices, default=ClientTypes.ELECTRICAL_DISTRIBUTION)
     graph_type = models.CharField(max_length=256)
     metric = models.CharField(choices=MetricTypes.choices, default=MetricTypes.VOLTAGE_RMS)
     order = models.IntegerField(default=1)

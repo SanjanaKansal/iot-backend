@@ -7,9 +7,9 @@ from rest_framework.viewsets import ModelViewSet
 
 from dashboard import constants
 from dashboard.helpers import get_data_points
-from dashboard.models import Config, MetricTypes, OriginTypes
+from dashboard.models import Config, MetricTypes
 from dashboard.serializers import HistogramDataInputSerializer, ConfigSerializer
-from datalogger.models import ElectricalData, WaterData
+from datalogger.models import ElectricalData, WaterData, ClientTypes
 
 
 class DashboardViewSet(ModelViewSet):
@@ -69,13 +69,15 @@ class DashboardViewSet(ModelViewSet):
             MetricTypes.VOLTAGE_FREQUENCY,
             MetricTypes.POWER,
             MetricTypes.ENERGY,
-        ] if origin in [OriginTypes.POWER_CONSUMPTION, OriginTypes.POWER_DISTRIBUTION] else [MetricTypes.FLOW_RATE, MetricTypes.VOLUME]
+        ] if origin in [ClientTypes.ELECTRICAL_DISTRIBUTION, ClientTypes.ELECTRICAL_GENERATION] else [MetricTypes.FLOW_RATE, MetricTypes.VOLUME]
         return Response(data)
 
     @action(methods=["GET"], detail=False)
     def data(self, request, *args, **kwargs):
         origin = request.GET.get("origin")
         metric = request.GET.get("metric")
+        phases = request.GET.get("phase").split(",")
+        clients = request.GET.get("client").split(",")
         if origin is None:
             return Response(
                 {"message": "Origin is required."},
@@ -84,6 +86,16 @@ class DashboardViewSet(ModelViewSet):
         if metric is None:
             return Response(
                 {"message": "Metric is required."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        if clients is None:
+            return Response(
+                {"message": "Client is required."},
+                status=HTTP_400_BAD_REQUEST,
+            )
+        if phases is None:
+            return Response(
+                {"message": "Phase is required."},
                 status=HTTP_400_BAD_REQUEST,
             )
         from_epoch = request.GET.get("from_epoch")
@@ -98,54 +110,61 @@ class DashboardViewSet(ModelViewSet):
             to_epoch = min(int(to_epoch), current_epoch)
         from_epoch = int(from_epoch)
         to_epoch = int(to_epoch)
-        if origin == OriginTypes.POWER_CONSUMPTION:
+        if origin in [ClientTypes.ELECTRICAL_DISTRIBUTION, ClientTypes.ELECTRICAL_GENERATION]:
             query = ElectricalData.objects.all()
-        elif origin == OriginTypes.POWER_DISTRIBUTION:
-            query = ElectricalData.objects.all()
-        else:
+        elif origin in [ClientTypes.WATER_DISTRIBUTION, ClientTypes.WATER_GENERATION]:
             query = WaterData.objects.all()
-        db_data = query.filter(
-                timestamp__range=[from_epoch, to_epoch],
+        client_ids = [f"{client}_{phase}" for client in clients for phase in phases]
+        results = {}
+        for client_id in client_ids:
+            client_data = query.filter(
+                timestamp__range=[from_epoch, to_epoch], client_id=client_id
             ).values_list("timestamp", metric).order_by("timestamp")
 
-        width = 30
-        if to_epoch - from_epoch > 604800:  # 7 days
-            width = 300  # 5 min
+            # Store the result in a dictionary keyed by client_id
+            results[client_id] = list(client_data)
+
+        width = 300
+        if to_epoch - from_epoch >= 604800:  # 7 days
+            width = 7200
         elif to_epoch - from_epoch > 131400 * 60:  # 3 months
-            width = 3600  # 1 hr
+            width = 36000
 
         # Optimize interval creation
         intervals = list(range(from_epoch, to_epoch + 1, width))
         timestamps = intervals[1:]
-        values = [0] * (len(timestamps))
-        if db_data:
-            interval_index = 0
-            total_value, total_samples = 0, 0
-            for timestamp, data in db_data:
-                # Move to the correct interval for the current timestamp
-                while (
-                    interval_index < len(timestamps) - 1
-                    and timestamp > timestamps[interval_index]
-                ):
-                    if total_samples > 0:
-                        values[interval_index] = total_value / total_samples
-                    interval_index += 1
-                    total_value, total_samples = 0, 0  # Reset for the next interval
+        client_values = {}
+        if results:
+            for client_id, db_data in results.items():
+                values = [0] * (len(timestamps))
+                interval_index = 0
+                total_value, total_samples = 0, 0
+                for timestamp, data in db_data:
+                    # Move to the correct interval for the current timestamp
+                    while (
+                        interval_index < len(timestamps) - 1
+                        and timestamp > timestamps[interval_index]
+                    ):
+                        if total_samples > 0:
+                            values[interval_index] = total_value / total_samples
+                        interval_index += 1
+                        total_value, total_samples = 0, 0  # Reset for the next interval
 
-                if timestamps[interval_index - 1] < timestamp <= timestamps[interval_index]:
-                    if type in [
-                        constants.HistogramDataType.WATER_FLOW,
-                        constants.HistogramDataType.WATER_VOLUME,
-                    ]:
-                        total_value += abs(data)
-                    else:
-                        total_value += data
-                    total_samples += 1
+                    if timestamps[interval_index - 1] < timestamp <= timestamps[interval_index]:
+                        if type in [
+                            constants.HistogramDataType.WATER_FLOW,
+                            constants.HistogramDataType.WATER_VOLUME,
+                        ]:
+                            total_value += abs(data)
+                        else:
+                            total_value += data
+                        total_samples += 1
 
-            if total_samples > 0:
-                values[interval_index] = total_value / total_samples
+                if total_samples > 0:
+                    values[interval_index] = total_value / total_samples
+                client_values[client_id] = values
 
-        return Response({"timestamps": timestamps, "values": values})
+        return Response({"timestamps": timestamps, "values": client_values})
 
 
 class PowerDashboardViewSet(DashboardViewSet):
