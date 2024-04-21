@@ -2,14 +2,24 @@ import random
 import time
 
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ViewSet
 
-from datalogger.models import ClientData, ElectricalData, WaterData
+from datalogger.models import ClientData, ElectricalData, WaterData, Tag
 from datalogger.serializers import (
     ClientDataSerializer,
     ElectricalDataSerializer,
-    WaterDataSerializer,
+    WaterDataSerializer, TagSerializer,
 )
+
+
+class HealthcheckViewSet(ViewSet):
+
+    def list(self, request, *args, **kwargs):
+        data = {
+            "status": "ok",
+            "message": "Service is up and running."
+        }
+        return Response(data)
 
 
 class LoggerViewSet(ModelViewSet):
@@ -84,3 +94,18 @@ class ClientDashboardViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data)
+
+
+class TagViewSet(ModelViewSet):
+    serializer_class = TagSerializer
+    queryset = Tag.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return super().update(request, *args, **kwargs)

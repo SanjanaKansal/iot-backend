@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from dashboard.models import MetricTypes
+from dashboard.models import Config
 
 
 class HistogramDataInputSerializer(serializers.Serializer):
@@ -9,7 +9,7 @@ class HistogramDataInputSerializer(serializers.Serializer):
     to_epoch = serializers.IntegerField(required=False)
 
 
-class ConfigSerializer(serializers.Serializer):
-    graph_type = serializers.CharField(required=True)
-    metric = serializers.ChoiceField(required=True, choices=MetricTypes.choices)
-    order = serializers.IntegerField(required=True)
+class ConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Config
+        fields = ("id", "graph_type", "metric", "order", "client", "tag", "name")

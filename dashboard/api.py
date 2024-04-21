@@ -1,3 +1,4 @@
+import json
 import time
 
 from rest_framework.decorators import action
@@ -38,20 +39,43 @@ class DashboardViewSet(ModelViewSet):
         if request.method == "PUT":
             serializer = ConfigSerializer(data=request.data, many=True)
             serializer.is_valid(raise_exception=True)
-            data = serializer.validated_data
+            data = json.loads(request.body)
+            ids = []
             for config in data:
-                Config.objects.update_or_create(
-                    graph_type=config["graph_type"],
-                    metric=config["metric"],
-                    order=config["order"],
-                    defaults={
-                        "organization_id": organization_id,
-                        "origin": origin
-                    }
-                )
+                if not config.get("id"):
+                    new_config = Config.objects.create(
+                        graph_type=config["graph_type"],
+                        metric=config["metric"],
+                        order=config["order"],
+                        client=config.get("client"),
+                        tag=config.get("tag"),
+                        name=config.get("name"),
+                        organization_id=organization_id,
+                        origin=origin
+                    )
+                    ids.append(new_config.id)
+                else:
+                    instance = Config.objects.filter(id=config["id"]).first()
+                    valid_fields = ("graph_type", "metric", "order", "client", "tag")
+                    for field in valid_fields:
+                        if (value := config.get(field)) is not None:
+                            setattr(instance, field, value)
+                    instance.save()
+                    ids.append(instance.id)
+            Config.objects.filter(origin=origin, organization_id=organization_id).exclude(id__in=ids).delete()
         configs = Config.objects.filter(organization_id=organization_id, origin=origin)
-        data = [{"graph_type": config.graph_type, "metric": config.metric, "order": config.order} for config in configs]
-        return Response({"config": data})
+        data = [
+            {
+                "id": config.id,
+                "graph_type": config.graph_type,
+                "metric": config.metric,
+                "order": config.order,
+                "client": config.client,
+                "tag": config.tag,
+                "name": config.name
+            } for config in configs
+        ]
+        return Response(data)
 
     @action(methods=["GET"], detail=False)
     def metric(self, request, *args, **kwargs):
@@ -76,8 +100,7 @@ class DashboardViewSet(ModelViewSet):
     def data(self, request, *args, **kwargs):
         origin = request.GET.get("origin")
         metric = request.GET.get("metric")
-        phases = request.GET.get("phase").split(",")
-        clients = request.GET.get("client").split(",")
+        client_ids = request.GET.get("client_id")
         if origin is None:
             return Response(
                 {"message": "Origin is required."},
@@ -88,16 +111,12 @@ class DashboardViewSet(ModelViewSet):
                 {"message": "Metric is required."},
                 status=HTTP_400_BAD_REQUEST,
             )
-        if clients is None:
+        if client_ids is None:
             return Response(
                 {"message": "Client is required."},
                 status=HTTP_400_BAD_REQUEST,
             )
-        if phases is None:
-            return Response(
-                {"message": "Phase is required."},
-                status=HTTP_400_BAD_REQUEST,
-            )
+        client_ids = client_ids.split(",")
         from_epoch = request.GET.get("from_epoch")
         to_epoch = request.GET.get("to_epoch")
         current_epoch = int(time.time())
@@ -114,7 +133,6 @@ class DashboardViewSet(ModelViewSet):
             query = ElectricalData.objects.all()
         elif origin in [ClientTypes.WATER_DISTRIBUTION, ClientTypes.WATER_GENERATION]:
             query = WaterData.objects.all()
-        client_ids = [f"{client}_{phase}" for client in clients for phase in phases]
         results = {}
         for client_id in client_ids:
             client_data = query.filter(
@@ -124,11 +142,11 @@ class DashboardViewSet(ModelViewSet):
             # Store the result in a dictionary keyed by client_id
             results[client_id] = list(client_data)
 
-        width = 300
+        width = 3600
         if to_epoch - from_epoch >= 604800:  # 7 days
-            width = 7200
+            width = 10800
         elif to_epoch - from_epoch > 131400 * 60:  # 3 months
-            width = 36000
+            width = 72000
 
         # Optimize interval creation
         intervals = list(range(from_epoch, to_epoch + 1, width))
