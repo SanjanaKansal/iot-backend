@@ -1,6 +1,7 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
-from datalogger.models import ClientTypes
+from datalogger.models import ClientTypes, Tag
 
 
 class MetricTypes(models.TextChoices):
@@ -16,8 +17,10 @@ class MetricTypes(models.TextChoices):
 
 
 class Config(models.Model):
-    organization_id = models.CharField(max_length=1024)
+    organization_id = models.CharField(max_length=1024, default="iit-jammu")
     origin = models.CharField(choices=ClientTypes.choices, default=ClientTypes.ELECTRICAL_DISTRIBUTION)
     graph_type = models.CharField(max_length=256)
     metric = models.CharField(choices=MetricTypes.choices, default=MetricTypes.VOLTAGE_RMS)
     order = models.IntegerField(default=1)
+    client = models.JSONField(null=True)
+    tag = models.IntegerField(null=True)

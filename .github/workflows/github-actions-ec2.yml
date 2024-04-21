@@ -75,5 +75,8 @@ jobs:
             python3 manage.py migrate
             python manage.py collectstatic
 
+            # Restart Gunicorn
+            echo "Restarting Gunicorn..."
+            sudo systemctl restart gunicorn.service
           
           EOF

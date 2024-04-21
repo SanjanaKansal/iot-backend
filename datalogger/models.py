@@ -1,4 +1,7 @@
+from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import JSONField
 
 
 class ElectricalData(models.Model):
@@ -53,8 +56,7 @@ class ClientData(models.Model):
     block_label = models.CharField(max_length=256)
     panel_id = models.CharField(max_length=256)
     panel_label = models.CharField(max_length=256)
-    phase_id = models.CharField(max_length=256)
-    phase_label = models.CharField(max_length=256)
+    phase = ArrayField(JSONField(), null=True)
     client_id = models.CharField(max_length=256)
     client_label = models.CharField(max_length=256)
     client_type = models.CharField(choices=ClientTypes.choices, default=ClientTypes.ELECTRICAL_DISTRIBUTION)
@@ -64,3 +66,12 @@ class ClientData(models.Model):
     is_faulty = models.BooleanField(default=False)
     latitude = models.FloatField(null=True)
     longitude = models.FloatField(null=True)
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=56)
+    description = models.CharField(max_length=256, null=True)
+    client_ids = ArrayField(models.JSONField(), null=True)
+    color = models.CharField(max_length=56)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    created_at = models.DateTimeField(auto_now=True)

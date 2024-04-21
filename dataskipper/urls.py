@@ -27,8 +27,10 @@ from dashboard.api import (
 from datalogger.api import (
     ClientDashboardViewSet,
     ElectricalLoggerViewSet,
+    HealthcheckViewSet,
     LoggerViewSet,
     WaterLoggerViewSet,
+    TagViewSet
 )
 from user.api import (
     UserLoginViewSet,
@@ -38,6 +40,9 @@ from user.api import (
 )
 
 default_router = routers.SimpleRouter()
+default_router.register(
+    "healthcheck", HealthcheckViewSet, basename="healthcheck"
+)
 default_router.register(
     "populateDummyData", LoggerViewSet, basename="populateDummyData"
 )
@@ -64,6 +69,7 @@ default_router.register("logoutUser", UserLogoutViewSet, basename="logoutUser")
 default_router.register("accountVerify", VerifyEmailViewSet, basename="accountVerify")
 
 default_router.register("dashboard", DashboardViewSet, basename="dashboard")
+default_router.register("tag", TagViewSet, basename="tag")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
